@@ -22,7 +22,7 @@ const generateMongoUri = async () => {
   }
 
   const mongoUri = IS_LOCAL_MONGO_DB
-    ? `mongodb://localhost:27017/${config.HR_DB_NAME}?replicaSet=rs0`
+    ? `mongodb://localhost:27017/${config.DB_NAME}?replicaSet=rs0`
     : // eslint-disable-next-line max-len
       `mongodb+srv://${MONGO_DB_USER_NAME}:${MONGO_DB_SECRET_KEY}@${MONGO_DB_NAME}.mongodb.net/${config.DB_NAME}?retryWrites=true&w=majority`;
 
