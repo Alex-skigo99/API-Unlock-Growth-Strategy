@@ -1,0 +1,21 @@
+{
+  "configurations": [
+    {
+      "name": "Launch Program",
+      "program": "${workspaceFolder}/server/app.js",
+      "request": "launch",
+      "skipFiles": ["<node_internals>/**", "${workspaceFolder}/node_modules/**"],
+      "type": "node"
+    },
+    {
+      "name": "Auto Restart",
+      "request": "launch",
+      "type": "node",
+      "cwd": "${workspaceFolder}",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run-script", "nodemon"],
+      "autoAttachChildProcesses": true,
+      "skipFiles": ["<node_internals>/**", "${workspaceFolder}/node_modules/**"]
+    }
+  ]
+}

@@ -1,0 +1,97 @@
+<html>
+  <head>
+    <style>
+      .w-100 {
+        width: 150px;
+      }
+      .error {
+        color: #ff0000;
+      }
+    </style>
+  </head>
+  <body>
+    <h1 class="error">Error Logger - HR API - <%= nodeEnv %></h1>
+
+    <table>
+      <tr>
+        <td class="w-100">
+          <strong>Type:</strong>
+        </td>
+        <td><%= name %></td>
+      </tr>
+      <tr>
+        <td class="w-100">
+          <strong>Message:</strong>
+        </td>
+        <td><%= message %></td>
+      </tr>
+      <tr>
+        <td class="w-100">
+          <strong>Original Name:</strong>
+        </td>
+        <% if (typeof originalName !== "undefined") { %>
+        <td><%= originalName %></td>
+        <% } else { %>
+        <td>N/A</td>
+        <% } %>
+      </tr>
+      <tr>
+        <td class="w-100">
+          <strong>Original Message:</strong>
+        </td>
+        <% if (typeof originalMessage !== "undefined") { %>
+        <td><%= originalMessage %></td>
+        <% } else { %>
+        <td>N/A</td>
+        <% } %>
+      </tr>
+      <tr>
+        <td class="w-100">
+          <strong>Original Error Data:</strong>
+        </td>
+        <% if (typeof originalErrorData !== "undefined") { %>
+        <td><%= originalErrorData %></td>
+        <% } else { %>
+        <td>N/A</td>
+        <% } %>
+      </tr>
+
+      <tr>
+        <td class="w-100">
+          <strong>Stacktrace:</strong>
+        </td>
+        <td><%= stacktrace %></td>
+      </tr>
+      <tr>
+        <td class="w-100">
+          <strong>Request Id:</strong>
+        </td>
+        <% if (typeof requestId !== "undefined") { %>
+        <td><%= requestId %></td>
+        <% } else { %>
+        <td>N/A</td>
+        <% } %>
+      </tr>
+      <tr>
+        <td class="w-100">
+          <strong>Logged At:</strong>
+        </td>
+        <td><%= loggedAt %></td>
+      </tr>
+      <tr>
+        <td class="w-100">
+          <strong>External Provider:</strong>
+        </td>
+        <% if (typeof provider !== "undefined") { %>
+        <td><%= provider %></td>
+        <% } else { %>
+        <td>N/A</td>
+        <% } %>
+      </tr>
+    </table>
+    <p>
+      "Original Name" and "Original Message" is only for InternalServerError and UnhandledExternalProviderError. "Original Error Data" and
+      "External Provider" is only for UnhandledExternalProviderError.
+    </p>
+  </body>
+</html>
