@@ -13,6 +13,7 @@ import requestLogger from "./api/middlewares/appMiddlewares/requestLogger.js";
 import routeNotFound from "./api/middlewares/appMiddlewares/routeNotFound.js";
 import authRouter from "./api/routes/unprotected/authRoutes.js";
 import systemRoute from "./api/routes/unprotected/healthCheckRoute.js";
+import mainRouter from "./api/routes/unprotected/mainRoutes.js";
 import { verifyToken } from "./api/middlewares/appMiddlewares/authentication.js";
 
 const PORT = process.env.SERVER_PORT ?? 9718;
@@ -44,8 +45,9 @@ app.use(
 /* UNPROTECTED ROUTES */
 app.use("/system", systemRoute);
 app.use("/auth", authRouter);
+app.use("", mainRouter);
 
-app.use(verifyToken);
+// app.use(verifyToken);
 
 /* PROTECTED ROUTES */
 // app.use("/your-protected-routes-below", employeeRoutes);
