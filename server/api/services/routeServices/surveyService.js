@@ -6,16 +6,10 @@ export const createSurvey = async (createData) => {
   if (!email || !link) {
     return { message: "Missing credentials for survey" };
   }
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    return { message: "Invalid email format" };
-  }
-  const linkRegex = /^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w .-]*)*\/?$/;
-  if (!linkRegex.test(link)) {
-    return { message: "Invalid link format" };
-  }
-  const survey = await Surveys.findOne({ email, link, isCompleted: true });
+  const survey = await Surveys.findOne({ email, link, isCompleted: false });
   if (survey) {
-    return { message: "Survey already exist and completed" };
+    return survey;
+    // return { message: "Survey already exist and completed" };
   }
   return await Surveys.create(createData);
 };
@@ -36,6 +30,7 @@ export const updateSurveyById = async (id, body) => {
   }
   const updateData = {};
   if (answer) {
+    answer.createdAt = new Date();
     survey.answers.push(answer);
     updateData.answers = survey.answers;
   }
@@ -49,5 +44,5 @@ export const updateSurveyById = async (id, body) => {
 };
 
 export const deleteSurveyById = async (id) => {
-  return await Surveys.findOne({ _id: new mongoose.Types.ObjectId(id) }).deleteOne();
+  return await Surveys.deleteOne({ _id: new mongoose.Types.ObjectId(id) });
 };
