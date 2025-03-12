@@ -13,8 +13,7 @@ import requestLogger from "./api/middlewares/appMiddlewares/requestLogger.js";
 import routeNotFound from "./api/middlewares/appMiddlewares/routeNotFound.js";
 import authRouter from "./api/routes/unprotected/authRoutes.js";
 import systemRoute from "./api/routes/unprotected/healthCheckRoute.js";
-import mainRouter from "./api/routes/unprotected/mainRoutes.js";
-import enailRouter from "./api/routes/unprotected/emailRoutes.js";
+import surveyRouter from "./api/routes/unprotected/surveyRoutes.js";
 import { verifyToken } from "./api/middlewares/appMiddlewares/authentication.js";
 import imageRouter from "./api/routes/unprotected/imageRoutes.js";
 import emailRouter from "./api/routes/unprotected/emailRoutes.js";
@@ -48,7 +47,7 @@ app.use(
 /* UNPROTECTED ROUTES */
 app.use("/system", systemRoute);
 app.use("/auth", authRouter);
-app.use("/api", mainRouter);
+app.use("/api", surveyRouter);
 app.use("/image", imageRouter);
 app.use("/email", emailRouter);
 

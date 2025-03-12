@@ -1,30 +1,35 @@
 import mongoose from "mongoose";
-import schemaValidators from "./schemaValidators.js";
 
 const surveysSchema = new mongoose.Schema(
   {
     _id: { type: mongoose.Schema.Types.ObjectId, required: true, default: () => new mongoose.Types.ObjectId() },
-    email: {
+    youtubersEmail: {
       type: String,
       required: true,
       minlength: 2,
       maxlength: 50
-      // validate: [schemaValidators.validateEmail, "Please enter a valid email"]
     },
-    link: {
+    youtubersChannelLink: {
       type: String,
       required: true,
       minlength: 2,
-      maxlength: 150
+      maxlength: 200
     },
-    answers: {
+    previousLinks: {
       type: Array
     },
-    isCompleted: {
+    surveyAnswers: {
+      type: Array
+    },
+    isWebsiteOpened: {
       type: Boolean,
       default: false
     },
-    isConfirmed: {
+    isSurveyCompleted: {
+      type: Boolean,
+      default: false
+    },
+    isChannelLinkConfirmed: {
       type: Boolean,
       default: false
     }

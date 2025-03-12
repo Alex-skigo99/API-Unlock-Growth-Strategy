@@ -1,48 +1,108 @@
 import mongoose from "mongoose";
 import Surveys from "../../model/schemas/surveys.js";
+import ShareEmails from "../../model/schemas/shareEmails.js";
+import { askGroq } from "../innerServices/groqService.js";
 
-export const createSurvey = async (createData) => {
-  const { email, link } = createData;
+export const getOrCreateSurvey = async (createData) => {
+  const { email, link, isWebsiteOpened } = createData;
   if (!email || !link) {
     return { message: "Missing credentials for survey" };
   }
-  const survey = await Surveys.findOne({ email, link, isCompleted: false });
-  if (survey) {
-    return survey;
-    // return { message: "Survey already exist and completed" };
+  let survey = await Surveys.findOne({ youtubersEmail: email, youtubersChannelLink: link, isSurveyCompleted: false });
+  if (!survey) {
+    survey = await Surveys.create({ youtubersEmail: email, youtubersChannelLink: link, isWebsiteOpened });
+  } else {
+    if (isWebsiteOpened) {
+      await Surveys.updateOne({ _id: survey._id }, { isWebsiteOpened });
+    }
   }
-  return await Surveys.create(createData);
-};
-
-export const getSurveysByEmail = async (email) => {
-  return await Surveys.find({ email });
-};
-
-export const getSurveyById = async (id) => {
-  return await Surveys.findOne({ _id: new mongoose.Types.ObjectId(id) });
+  return { _id: survey._id };
 };
 
 export const updateSurveyById = async (id, body) => {
-  const { answer, isCompleted, isConfirmed } = body;
-  const survey = await getSurveyById(id);
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return { message: "Invalid survey ID" };
+  }
+  const { answer, isSurveyCompleted, isChannelLinkConfirmed, newYoutubersChannelLink } = body;
+  const survey = await Surveys.findOne({ _id: new mongoose.Types.ObjectId(id) });
   if (!survey) {
     return { message: "Survey not found" };
   }
   const updateData = {};
   if (answer) {
     answer.createdAt = new Date();
-    survey.answers.push(answer);
-    updateData.answers = survey.answers;
+    survey.surveyAnswers.push(answer);
+    updateData.surveyAnswers = survey.surveyAnswers;
   }
-  if (isCompleted !== undefined) {
-    updateData.isCompleted = isCompleted;
+  if (isSurveyCompleted !== undefined) {
+    updateData.isSurveyCompleted = isSurveyCompleted;
   }
-  if (isConfirmed !== undefined) {
-    updateData.isConfirmed = isConfirmed;
+  if (isChannelLinkConfirmed !== undefined) {
+    updateData.isChannelLinkConfirmed = isChannelLinkConfirmed;
   }
-  return await Surveys.updateOne({ _id: new mongoose.Types.ObjectId(id) }, updateData);
+  if (newYoutubersChannelLink) {
+    updateData.previousLinks = survey.previousLinks || [];
+    updateData.previousLinks.push(survey.youtubersChannelLink);
+    updateData.youtubersChannelLink = newYoutubersChannelLink;
+  }
+  const result = await Surveys.updateOne({ _id: new mongoose.Types.ObjectId(id) }, updateData);
+  return result;
 };
 
-export const deleteSurveyById = async (id) => {
-  return await Surveys.deleteOne({ _id: new mongoose.Types.ObjectId(id) });
+export const getSurveyAnswerNumber = async (id) => {
+  const survey = await Surveys.findOne({ _id: new mongoose.Types.ObjectId(id) });
+  if (!survey) {
+    return { message: "Survey not found" };
+  }
+  const result = {
+    currentAnswerNumber: survey.surveyAnswers ? survey.surveyAnswers.length : 0,
+    isSurveyCompleted: survey.isSurveyCompleted || false,
+    isChannelLinkConfirmed: survey.isChannelLinkConfirmed || false
+  };
+  return result;
+};
+
+export const getSurveyResult = async (id) => {
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return { message: "Invalid survey ID" };
+  }
+  const survey = await Surveys.findOne({ _id: new mongoose.Types.ObjectId(id), isSurveyCompleted: true });
+  if (!survey) {
+    return { message: "Survey not found" };
+  }
+  let prompt = `Provide the analysis of answers below in JSON format:
+    {
+      "YourPersonalityType",
+      "YourGrowthStrategy",
+      "YourStrengths",
+      "YourWeaknesses",
+      }
+    The qustionnaire answers are:
+    [
+  `;
+  prompt += survey.surveyAnswers
+    .map((answer) => {
+      return `{
+      "question": "${answer.question}",
+      "answer": "${answer.valueText}"
+    }`;
+    })
+    .join(",\n");
+  prompt += `]`;
+  let result = await askGroq(prompt);
+  const startJson = result.indexOf("{");
+  const endJson = result.lastIndexOf("}");
+  result = result.slice(startJson, endJson + 1);
+
+  return { youtubersEmail: survey.youtubersEmail, youtubersChannelLink: survey.youtubersChannelLink, result: JSON.parse(result) };
+};
+
+export const saveShareEmail = async (id, body) => {
+  const { email } = body;
+  const emailData = { email };
+  if (mongoose.Types.ObjectId.isValid(id)) {
+    emailData.surveyId = id;
+  }
+  const result = await ShareEmails.create(emailData);
+  return !!result ? { message: "Email saved" } : { message: "Email not saved" };
 };

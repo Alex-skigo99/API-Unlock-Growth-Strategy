@@ -3,8 +3,8 @@ import path from "path";
 
 const getQuestionnaire = async () => {
   const __dirname = path.dirname(new URL(import.meta.url).pathname);
-  // const filePath = path.resolve(__dirname, "../../assets/25 Questions for Testing.txt");
-  const filePath = path.resolve(__dirname, "../../assets/Questions - Slim edition.txt");
+  const filePath = path.resolve(__dirname, "../../assets/25 Questions for Testing.txt");
+  // const filePath = path.resolve(__dirname, "../../assets/Questions - Slim edition.txt");
   const fileContent = await fs.promises.readFile(filePath, "utf-8");
   const lines = fileContent.split("\n").filter((line) => line.trim() !== "");
   const questionnaire = [];
