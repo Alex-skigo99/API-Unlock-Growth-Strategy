@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import Surveys from "../../model/schemas/surveys.js";
 import ShareEmails from "../../model/schemas/shareEmails.js";
 import { askGroq } from "../innerServices/groqService.js";
+import { groqBasePrompt } from "../innerServices/groqBasePrompt.js";
 
 export const getOrCreateSurvey = async (createData) => {
   const { email, link, isWebsiteOpened } = createData;
@@ -70,16 +71,8 @@ export const getSurveyResult = async (id) => {
   if (!survey) {
     return { message: "Survey not found" };
   }
-  let prompt = `Provide the analysis of answers below in JSON format:
-    {
-      "YourPersonalityType",
-      "YourGrowthStrategy",
-      "YourStrengths",
-      "YourWeaknesses",
-      }
-    The qustionnaire answers are:
-    [
-  `;
+  let prompt = groqBasePrompt;
+  prompt += "[";
   prompt += survey.surveyAnswers
     .map((answer) => {
       return `{
@@ -92,9 +85,9 @@ export const getSurveyResult = async (id) => {
   let result = await askGroq(prompt);
   const startJson = result.indexOf("{");
   const endJson = result.lastIndexOf("}");
-  result = result.slice(startJson, endJson + 1);
+  result = JSON.parse(result.slice(startJson, endJson + 1));
 
-  return { youtubersEmail: survey.youtubersEmail, youtubersChannelLink: survey.youtubersChannelLink, result: JSON.parse(result) };
+  return { youtubersEmail: survey.youtubersEmail, youtubersChannelLink: survey.youtubersChannelLink, result };
 };
 
 export const saveShareEmail = async (id, body) => {
