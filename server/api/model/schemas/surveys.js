@@ -21,6 +21,13 @@ const surveysSchema = new mongoose.Schema(
     surveyAnswers: {
       type: Array
     },
+    selfAwarenessAnswers: {
+      type: Array
+    },
+    currentAnswerNumber: {
+      type: Number,
+      default: 0
+    },
     isWebsiteOpened: {
       type: Boolean,
       default: false
@@ -32,6 +39,9 @@ const surveysSchema = new mongoose.Schema(
     isChannelLinkConfirmed: {
       type: Boolean,
       default: false
+    },
+    result: {
+      type: Object
     }
   },
   { timestamps: true }

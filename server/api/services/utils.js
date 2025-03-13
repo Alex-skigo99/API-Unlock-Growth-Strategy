@@ -51,72 +51,19 @@ export const shuffleArray = (array) => {
   return array;
 };
 
-export const extractJsonObject = (text) => {
-  try {
-    // First try to parse the entire text as JSON
+export const extractJsonFromString = (str) => {
+  const jsonRegex = /{[^}]*}/;
+  const match = str.match(jsonRegex);
+  if (match) {
     try {
-      return JSON.parse(text);
-    } catch {
-      // If not valid JSON, try to extract and fix it
-
-      // Find content between first { and count braces
-      const start = text?.indexOf("{");
-      if (start === -1) {
-        console.error("No opening brace found");
-        return null;
-      }
-
-      // Count opening and closing braces to ensure proper nesting
-      let braceCount = 0;
-      let squareBraceCount = 0;
-      let end = start;
-
-      for (let i = start; i < text.length; i++) {
-        if (text[i] === "{") braceCount++;
-        if (text[i] === "}") braceCount--;
-        if (text[i] === "[") squareBraceCount++;
-        if (text[i] === "]") squareBraceCount--;
-        end = i;
-
-        // If we've found a complete JSON structure, break
-        if (braceCount === 0 && squareBraceCount === 0) break;
-      }
-
-      // Add missing closing braces/brackets
-      let jsonStr = text.slice(start, end + 1);
-      while (braceCount > 0) {
-        jsonStr += "}";
-        braceCount--;
-      }
-      while (squareBraceCount > 0) {
-        jsonStr += "]";
-        squareBraceCount--;
-      }
-
-      // Clean and fix the JSON string
-      let cleanJson = jsonStr
-        .replace(/,\s*[}\]](?=[}\]])/g, "$1") // Remove trailing commas before } or ]
-        .replace(/'/g, '"') // Standardize quotes
-        .replace(/:\s*"([^"]*?)(?=[,}\]](?!"))/g, ':"$1"') // Add missing closing quotes only if not already present
-        .replace(/\n/g, "\\n") // Escape newlines
-        .replace(/([^"\\])"/g, '$1\\"') // Escape unescaped quotes within strings
-        .replace(/:\s*([^",\s{}[\]][^,}\]]*?)(?=[,}\]])/g, ':"$1"'); // Add quotes to unquoted string values
-
-      // Add quotes to keys
-      cleanJson = cleanJson.replace(/{|\b(\w+)(?=:)/g, (match) => (match === "{" ? "{" : `"${match}"`));
-
-      // Add quotes to string values
-      cleanJson = cleanJson.replace(/:\s*([^",\s{}[\]][^,}\]]*?)(?=[,}\]])/g, (match, value) => {
-        // Don't quote numbers, booleans, or null
-        if (/^-?\d+\.?\d*$/.test(value)) return match;
-        if (/^(true|false|null)$/.test(value)) return match;
-        return `: "${value.trim()}"`;
-      });
-
-      return JSON.parse(cleanJson);
+      const jsonString = match[0];
+      const jsonObject = JSON.parse(jsonString.replace(/(\w+):/g, '"$1":'));
+      return jsonObject;
+    } catch (e) {
+      console.error("Error parsing JSON:", e);
+      return "";
     }
-  } catch (error) {
-    console.error("Error parsing JSON:", error);
-    return null;
   }
+  console.warn("No JSON object found in the string");
+  return "";
 };

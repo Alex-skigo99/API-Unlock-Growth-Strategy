@@ -1,5 +1,5 @@
 import { Router } from "express";
-import getQuestionnaire from "../../services/routeServices/questionnaireService.js";
+import { questionnaire } from "../../assets/Questions-for-survey.js";
 import {
   getOrCreateSurvey,
   updateSurveyById,
@@ -11,11 +11,7 @@ import {
 const surveyRouter = Router();
 
 surveyRouter.get("/get-questionnaire", async (_req, res, next) => {
-  await getQuestionnaire()
-    .then((questionnaire) => {
-      return res.json(questionnaire);
-    })
-    .catch(next);
+  res.json(questionnaire);
 });
 
 surveyRouter.post("/survey", async (req, res, next) => {

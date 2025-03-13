@@ -16,7 +16,9 @@ You are a helpful assistant providing useful tips and analysis for YouTube conte
 Talk directly to the person and be decisive and polite but honest.
 
 Now provide this for the creator based on the answers they have given during the survey, representing the creator as a person.
+There are an answers to questions for self awareness and for the survey.
+The self awareness answers are:
+%SELF_AWARENESS_ANSWERS%
 Below is a JSON object with the keys "question" and "answer". The "question" key contain the question asked in the survey and the "answer" key contain the answer given by the creator.
-%survey%
-
+%SURVEY_ANSWERS%
 `;

@@ -3,6 +3,7 @@ import Surveys from "../../model/schemas/surveys.js";
 import ShareEmails from "../../model/schemas/shareEmails.js";
 import { askGroq } from "../innerServices/groqService.js";
 import { groqBasePrompt } from "../innerServices/groqBasePrompt.js";
+import { extractJsonFromString } from "../utils.js";
 
 export const getOrCreateSurvey = async (createData) => {
   const { email, link, isWebsiteOpened } = createData;
@@ -32,8 +33,14 @@ export const updateSurveyById = async (id, body) => {
   const updateData = {};
   if (answer) {
     answer.createdAt = new Date();
-    survey.surveyAnswers.push(answer);
-    updateData.surveyAnswers = survey.surveyAnswers;
+    updateData.currentAnswerNumber = survey.currentAnswerNumber + 1;
+    if (answer.isSelfAwareness) {
+      survey.selfAwarenessAnswers.push(answer);
+      updateData.selfAwarenessAnswers = survey.selfAwarenessAnswers;
+    } else {
+      survey.surveyAnswers.push(answer);
+      updateData.surveyAnswers = survey.surveyAnswers;
+    }
   }
   if (isSurveyCompleted !== undefined) {
     updateData.isSurveyCompleted = isSurveyCompleted;
@@ -56,7 +63,7 @@ export const getSurveyAnswerNumber = async (id) => {
     return { message: "Survey not found" };
   }
   const result = {
-    currentAnswerNumber: survey.surveyAnswers ? survey.surveyAnswers.length : 0,
+    currentAnswerNumber: survey.currentAnswerNumber || 0,
     isSurveyCompleted: survey.isSurveyCompleted || false,
     isChannelLinkConfirmed: survey.isChannelLinkConfirmed || false
   };
@@ -71,21 +78,22 @@ export const getSurveyResult = async (id) => {
   if (!survey) {
     return { message: "Survey not found" };
   }
+  if (survey.result) {
+    return { youtubersEmail: survey.youtubersEmail, youtubersChannelLink: survey.youtubersChannelLink, result: survey.result };
+  }
   let prompt = groqBasePrompt;
-  prompt += "[";
-  prompt += survey.surveyAnswers
-    .map((answer) => {
-      return `{
-      "question": "${answer.question}",
-      "answer": "${answer.valueText}"
-    }`;
-    })
-    .join(",\n");
-  prompt += `]`;
+  const surveyAnswers = survey.surveyAnswers.map((answer) => {
+    return { question: answer.question, answer: answer.valueText };
+  });
+  const selfAwarenessAnswers = survey.selfAwarenessAnswers.map((answer) => {
+    return { question: answer.question, answer: answer.valueText };
+  });
+  prompt = prompt
+    .replace("%SURVEY_ANSWERS%", JSON.stringify(surveyAnswers))
+    .replace("%SELF_AWARENESS_ANSWERS%", JSON.stringify(selfAwarenessAnswers));
   let result = await askGroq(prompt);
-  const startJson = result.indexOf("{");
-  const endJson = result.lastIndexOf("}");
-  result = JSON.parse(result.slice(startJson, endJson + 1));
+  result = extractJsonFromString(result);
+  await Surveys.updateOne({ _id: new mongoose.Types.ObjectId(id) }, { result });
 
   return { youtubersEmail: survey.youtubersEmail, youtubersChannelLink: survey.youtubersChannelLink, result };
 };
