@@ -13,7 +13,10 @@ import requestLogger from "./api/middlewares/appMiddlewares/requestLogger.js";
 import routeNotFound from "./api/middlewares/appMiddlewares/routeNotFound.js";
 import authRouter from "./api/routes/unprotected/authRoutes.js";
 import systemRoute from "./api/routes/unprotected/healthCheckRoute.js";
+import surveyRouter from "./api/routes/unprotected/surveyRoutes.js";
 import { verifyToken } from "./api/middlewares/appMiddlewares/authentication.js";
+import imageRouter from "./api/routes/unprotected/imageRoutes.js";
+import emailRouter from "./api/routes/unprotected/emailRoutes.js";
 
 const PORT = process.env.SERVER_PORT ?? 9718;
 const isTestEnv = process.env.NODE_ENV === "test";
@@ -44,8 +47,11 @@ app.use(
 /* UNPROTECTED ROUTES */
 app.use("/system", systemRoute);
 app.use("/auth", authRouter);
+app.use("/api", surveyRouter);
+app.use("/image", imageRouter);
+app.use("/email", emailRouter);
 
-app.use(verifyToken);
+// app.use(verifyToken);
 
 /* PROTECTED ROUTES */
 // app.use("/your-protected-routes-below", employeeRoutes);
