@@ -6,11 +6,11 @@ const emailRouter = Router();
 emailRouter.get("/send", async (_req, res, next) => {
   const attachments = undefined;
   const customSubject = "Invitation";
-  const receivers = "refoned803@dwriters.com";
+  const receivers = "k2y36@deltajohnsons.com";
   const fieldsToReplace = {
-    companyLogo: "http://localhost:9718/image/sasha@gmail.com/youtube.com-sasha/insightgenie-icon-small.png",
+    companyLogo: "http://localhost:9718/image/sasha26@gmail.com/youtube.com-sasha-26/insightgenie-icon-small.png",
     clientFirstName: "John",
-    clientLink: "http://localhost:3000/?email=sasha@gmail.com&link=youtube.com/sasha"
+    clientLink: "http://localhost:3000/?email=sasha26@gmail.com&link=youtube.com/sasha-26"
   };
   await sendEmail("INVITATION_SURVEY", fieldsToReplace, receivers, attachments, customSubject)
     .then(() => {
