@@ -1,3 +1,6 @@
+// Base prompt template for the personality analysis LLM call.
+// Placeholders %SURVEY_ANSWERS% and %SELF_AWARENESS_ANSWERS% are replaced
+// at runtime with the user's actual responses before sending to the model.
 export const groqBasePrompt = `
 You are a helpful assistant providing useful tips and analysis for YouTube content creators based on their channel size, category and the personality traits. You are to provide the following sections in a json:
 "creator_type_headline": A title of the creator type this person is. One example is Storyteller,

@@ -5,6 +5,11 @@ import { askGroq } from "../innerServices/groqService.js";
 import { groqBasePrompt } from "../innerServices/groqBasePrompt.js";
 import { extractJsonFromString } from "../utils.js";
 
+/**
+ * Finds an existing incomplete survey for the given email + channel,
+ * or creates a new one. Called both by POST /api/survey and by the
+ * email tracking pixel route (GET /image/:email/:link/:filename).
+ */
 export const getOrCreateSurvey = async (createData) => {
   const { email, link, isWebsiteOpened } = createData;
   if (!email || !link) {
@@ -21,6 +26,11 @@ export const getOrCreateSurvey = async (createData) => {
   return { _id: survey._id };
 };
 
+/**
+ * Appends an individual answer, marks survey as completed,
+ * confirms channel link, or updates the YouTube channel URL.
+ * Each answer is saved separately enabling resume-from-where-you-left-off.
+ */
 export const updateSurveyById = async (id, body) => {
   if (!mongoose.Types.ObjectId.isValid(id)) {
     return { message: "Invalid survey ID" };
@@ -57,6 +67,10 @@ export const updateSurveyById = async (id, body) => {
   return result;
 };
 
+/**
+ * Returns the current progress of a survey (answer count + completion flags).
+ * Used by the frontend to resume a survey session.
+ */
 export const getSurveyAnswerNumber = async (id) => {
   const survey = await Surveys.findOne({ _id: new mongoose.Types.ObjectId(id) });
   if (!survey) {
@@ -70,6 +84,12 @@ export const getSurveyAnswerNumber = async (id) => {
   return result;
 };
 
+/**
+ * Returns the AI-generated personality report for a completed survey.
+ * On first request: builds a prompt from answers, calls the Groq LLM,
+ * parses the JSON response, and caches the result in the survey document.
+ * Subsequent requests return the cached result directly.
+ */
 export const getSurveyResult = async (id) => {
   if (!mongoose.Types.ObjectId.isValid(id)) {
     return { message: "Invalid survey ID" };
@@ -98,6 +118,7 @@ export const getSurveyResult = async (id) => {
   return { youtubersEmail: survey.youtubersEmail, youtubersChannelLink: survey.youtubersChannelLink, result };
 };
 
+// Stores a "share with a friend" email address for viral growth tracking
 export const saveShareEmail = async (id, body) => {
   const { email } = body;
   const emailData = { email };

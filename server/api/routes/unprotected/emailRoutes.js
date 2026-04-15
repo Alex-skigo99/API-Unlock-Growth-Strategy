@@ -3,6 +3,7 @@ import sendEmail from "../../services/innerServices/emails/emailService.js";
 
 const emailRouter = Router();
 
+// Development helper — sends a test invitation email with hardcoded data
 emailRouter.get("/send", async (_req, res, next) => {
   const attachments = undefined;
   const customSubject = "Invitation";

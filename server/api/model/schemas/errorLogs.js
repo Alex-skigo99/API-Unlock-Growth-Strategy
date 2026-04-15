@@ -33,32 +33,10 @@ const errorLogSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "User"
     },
-    // Error source
+    // Error source — derived from the request path prefix
     service: {
       type: String,
-      enum: [
-        "system",
-        "auth",
-        "applicant-interviews",
-        "appointment-for-applicant",
-        "inquiry",
-        "professional-references",
-        "recruiter",
-        "company",
-        "jobs",
-        "interviewConfigurations",
-        "applicant-reports",
-        "ask-ai",
-        "appointments",
-        "post-jobs",
-        "google-calendar-events",
-        "dashboard",
-        "dev-services",
-        "admin",
-        "aws",
-        "employee",
-        "other"
-      ],
+      enum: ["system", "api", "image", "email", "other"],
       required: true
     },
     // Additional context

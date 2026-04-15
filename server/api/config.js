@@ -1,27 +1,25 @@
 const config = {
-  /* RATE LIMIT HANDLER */
-  limitWindowMs: 60 * 60 * 1000,
+  // Rate limiting: max requests per IP within the time window
+  limitWindowMs: 60 * 60 * 1000, // 1 hour
   maxReqAmount: 1000,
 
-  /* EMAIL SERVICE */
-  emailDoNotReply: "InsightGenie HR <do-not-reply@hr.insightgenie.ai>",
-
+  // Email sender identity for transactional emails (AWS SES)
+  emailDoNotReply: "InsightGenie <do-not-reply@insightgenie.ai>",
   supportEmail: "itaybkk10@gmail.com",
 
-  /* ERRORS HANDLING */
+  // Error types that trigger admin email notifications
   criticalErrorTypes: ["InternalServerError", "TooManyRequestsError", "UnhandledExternalProviderError", "AwsError", "AiError"],
 
-  /* MONGO DB */
+  // MongoDB database name
   DB_NAME: "PersonalityCollectionDb",
 
-  /* INSIGHT GENIE LOGO URL */
+  // Public logo URL used in invitation emails
   INSIGHT_GENIE_LOGO_URL: "https://indexing-bizbaz.s3.ap-southeast-1.amazonaws.com/insightgenie-logo-white.png",
 
+  // Frontend domain — used for building survey links in emails
   webDomain: process.env.NODE_ENV === "development" ? "http://localhost:3000" : "YOUR DOMAIN HERE",
 
-  // BCRYPT
-  saltRounds: 10,
-
+  // Backend API base URL
   apiUrl: process.env.NODE_ENV === "development" ? `http://localhost:${process.env.SERVER_PORT ?? 9718}` : "YOUR API URL HERE"
 };
 

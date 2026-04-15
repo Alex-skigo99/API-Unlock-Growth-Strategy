@@ -10,10 +10,12 @@ import {
 
 const surveyRouter = Router();
 
+// Returns the full ordered list of survey questions (Big 5 self-awareness + personality)
 surveyRouter.get("/get-questionnaire", async (_req, res, next) => {
   res.json(questionnaire);
 });
 
+// Creates or retrieves an existing survey instance for the given email + channel
 surveyRouter.post("/survey", async (req, res, next) => {
   await getOrCreateSurvey(req.body)
     .then((surveyData) => {
@@ -25,6 +27,7 @@ surveyRouter.post("/survey", async (req, res, next) => {
     .catch(next);
 });
 
+// Saves an individual answer, marks survey complete, or confirms channel link
 surveyRouter.patch("/survey/:id", async (req, res, next) => {
   const { id } = req.params;
   await updateSurveyById(id, req.body)
@@ -32,6 +35,7 @@ surveyRouter.patch("/survey/:id", async (req, res, next) => {
     .catch(next);
 });
 
+// Returns current survey progress (answer number + completion flags)
 surveyRouter.get("/survey/:id", async (req, res, next) => {
   const { id } = req.params;
   await getSurveyAnswerNumber(id)
@@ -41,6 +45,7 @@ surveyRouter.get("/survey/:id", async (req, res, next) => {
     .catch(next);
 });
 
+// Fetches the AI-generated personality report for a completed survey
 surveyRouter.get("/survey/result/:id", async (req, res, next) => {
   const { id } = req.params;
   await getSurveyResult(id)
@@ -48,6 +53,7 @@ surveyRouter.get("/survey/result/:id", async (req, res, next) => {
     .catch(next);
 });
 
+// Saves a "share with a friend" email address for the referral flow
 surveyRouter.post("/survey/share-email/:id", async (req, res, next) => {
   const { id } = req.params;
   await saveShareEmail(id, req.body)

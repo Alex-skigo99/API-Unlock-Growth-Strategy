@@ -1,5 +1,5 @@
 import sendEmail from "./emails/emailService.js";
-import { ERROR_NOTIFICATION } from "./emails/emailEnums.js";
+import { REQUEST_ERROR } from "./emails/emailEnums.js";
 import HRCustomError from "./errors/HRCustomError.js";
 import { InternalServerError } from "./errors/CustomErrors.js";
 import config from "../../config.js";
@@ -34,9 +34,9 @@ export const pushErrorMsg = (error, requestId) => {
   // Log all errors to console with appropriate color
   consoleLogError(err, isCriticalError, requestId);
 
-  // Send email only for critical errors
+  // Send email notification for critical errors
   if (isCriticalError) {
-    sendEmail(ERROR_NOTIFICATION, err.getLoggerObject(requestId, true), config.adminEmails).catch(console.error);
+    sendEmail(REQUEST_ERROR, err.getLoggerObject(requestId, true), config.supportEmail).catch(console.error);
   }
 };
 

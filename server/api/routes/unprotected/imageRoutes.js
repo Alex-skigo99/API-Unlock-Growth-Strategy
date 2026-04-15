@@ -5,6 +5,12 @@ import { getOrCreateSurvey } from "../../services/routeServices/surveyService.js
 
 const imageRouter = Router();
 
+/**
+ * Email tracking pixel route.
+ * When the invitation email loads its logo image, this endpoint is hit,
+ * which initialises a survey instance in the database (if not already created).
+ * The email and YouTube channel link are encoded in the URL path.
+ */
 imageRouter.get("/:email/:link/:filename", async (req, res, next) => {
   let { email, link, filename } = req.params;
   link = link.replace("-", "/");

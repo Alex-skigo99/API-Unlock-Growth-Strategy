@@ -1,4 +1,4 @@
-import { InternalServerError } from "groq-sdk";
+import { InternalServerError } from "../../services/innerServices/errors/CustomErrors.js";
 import ErrorLogs from "../../model/schemas/errorLogs.js";
 import HRCustomError from "../../services/innerServices/errors/HRCustomError.js";
 import { pushErrorMsg } from "../../services/innerServices/loggerHandler.js";

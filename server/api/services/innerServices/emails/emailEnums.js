@@ -1,5 +1,3 @@
-// this eslint exception is just until we got more enums
-// eslint-disable-next-line import/prefer-default-export
+// Email template identifiers — must match filenames in emailTemplates/
 export const REQUEST_ERROR = "REQUEST_ERROR";
-export const ERROR_NOTIFICATION = "ERROR_NOTIFICATION";
-export const APPLICATION_RECEIVED = "APPLICATION_RECEIVED";
+export const INVITATION_SURVEY = "INVITATION_SURVEY";

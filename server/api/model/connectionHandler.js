@@ -9,34 +9,28 @@ const { IS_LOCAL_MONGO_DB, MONGO_DB_USER_NAME, MONGO_DB_SECRET_KEY, MONGO_DB_NAM
 
 let mongoMemoryServer;
 
+/**
+ * Builds the MongoDB connection URI based on environment:
+ * - test: spins up an in-memory MongoDB replica set (no external DB needed)
+ * - development: connects to a local or remote MongoDB instance
+ */
 const generateMongoUri = async () => {
   if (NODE_ENV === "test") {
     mongoMemoryServer = await MongoMemoryReplSet.create({
-      replSet: {
-        count: 1,
-        storageEngine: "wiredTiger"
-      }
+      replSet: { count: 1, storageEngine: "wiredTiger" }
     });
-
     return mongoMemoryServer.getUri();
   }
 
-  const mongoUri = IS_LOCAL_MONGO_DB
+  return IS_LOCAL_MONGO_DB
     ? `mongodb://localhost:27017/${config.DB_NAME}`
-    : // eslint-disable-next-line max-len
-      `mongodb+srv://${MONGO_DB_USER_NAME}:${MONGO_DB_SECRET_KEY}@${MONGO_DB_NAME}.mongodb.net/${config.DB_NAME}?retryWrites=true&w=majority`;
-
-  return mongoUri;
+    : `mongodb+srv://${MONGO_DB_USER_NAME}:${MONGO_DB_SECRET_KEY}@${MONGO_DB_NAME}.mongodb.net/${config.DB_NAME}?retryWrites=true&w=majority`;
 };
 
 export const connectToMongoDB = async () => {
   try {
     const mongoUri = await generateMongoUri();
-    mongoose.connect(mongoUri, {
-      family: 4,
-      useNewUrlParser: true,
-      useUnifiedTopology: true
-    });
+    await mongoose.connect(mongoUri, { family: 4 });
 
     cLog(
       `**Server** - ${IS_LOCAL_MONGO_DB ? "**Local mongoDB**" : "**Remote MongoDB**"} connection to mongo is up. DB name => ${

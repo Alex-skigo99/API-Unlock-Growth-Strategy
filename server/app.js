@@ -1,3 +1,4 @@
+// Load environment variables before any other imports
 import "./api/services/innerServices/loadEnvService.js";
 import express from "express";
 import cors from "cors";
@@ -11,10 +12,8 @@ import errorHandler from "./api/middlewares/appMiddlewares/errorHandler.js";
 import { connectToMongoDB } from "./api/model/connectionHandler.js";
 import requestLogger from "./api/middlewares/appMiddlewares/requestLogger.js";
 import routeNotFound from "./api/middlewares/appMiddlewares/routeNotFound.js";
-import authRouter from "./api/routes/unprotected/authRoutes.js";
 import systemRoute from "./api/routes/unprotected/healthCheckRoute.js";
 import surveyRouter from "./api/routes/unprotected/surveyRoutes.js";
-import { verifyToken } from "./api/middlewares/appMiddlewares/authentication.js";
 import imageRouter from "./api/routes/unprotected/imageRoutes.js";
 import emailRouter from "./api/routes/unprotected/emailRoutes.js";
 
@@ -22,43 +21,45 @@ const PORT = process.env.SERVER_PORT ?? 9718;
 const isTestEnv = process.env.NODE_ENV === "test";
 
 const app = express();
+
+// --- Global middleware chain ---
 app.use(cors());
 app.use(express.json({ limit: "1mb" }));
 app.use(express.urlencoded({ extended: true }));
+
+// Browser fingerprinting for request tracking and rate-limit key generation
 app.use(
   fingerprint({
     parameters: [fingerprint.useragent, fingerprint.acceptHeaders, fingerprint.geoip]
   })
 );
 
+// Catches malformed JSON and oversized payloads before they reach route handlers
 app.use(earlyOnsetErrorHandler);
 
+// Logs every request (method, path, IP, browser, duration) to MongoDB
 app.use(requestLogger);
 
+// IP-based rate limiting to prevent abuse
 app.use(
   rateLimit({
-    windowMs: config.limitWindowMs, //  window
-    max: config.maxReqAmount, // limit each IP to x requests per windowMs
+    windowMs: config.limitWindowMs,
+    max: config.maxReqAmount,
     keyGenerator: (req) => req.loggerData.ip,
     handler: rateLimitHandler
   })
 );
 
-/* UNPROTECTED ROUTES */
+// --- API Routes ---
 app.use("/system", systemRoute);
-app.use("/auth", authRouter);
 app.use("/api", surveyRouter);
 app.use("/image", imageRouter);
 app.use("/email", emailRouter);
 
-// app.use(verifyToken);
-
-/* PROTECTED ROUTES */
-// app.use("/your-protected-routes-below", employeeRoutes);
-
+// Fallback: returns 404 for any unmatched route
 app.use(routeNotFound);
 
-/* ERROR HANDLER */
+// Centralized error handler — logs to DB and returns structured JSON response
 app.use(errorHandler);
 
 const startServer = async () => {
